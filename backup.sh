@@ -4,7 +4,7 @@ backup () {
     #This takes the 2 values of workers
 
 
-    result="[\"datasets/myMaster","worker/myW","wo/3\"]"    #curl -s http://192.168.99.100:8500/v1/kv/?keys
+    result="[\"datasets/myMaster\"]"    #curl -s http://192.168.99.100:8500/v1/kv/?keys
 
     if [[ -z "${result}" ]]; then
         echo "no keys? what is that even mean?"
@@ -14,20 +14,20 @@ backup () {
         key=$(echo ${result} | cut -d'"' -f 2)
         echo ${key}
     else
-        key=$(echo ${result} | cut -d',' -f 1)
-        name=$(echo ${key} | cut -d '"' -f 2)
-        echo ${name}
+        whole_key=$(echo ${result} | cut -d',' -f 1)
+        key=$(echo ${whole_key} | cut -d '"' -f 2)
+        echo ${key}
 
         n=1
         while true
         do
             n=$((${n} + 1))
-            other_half=$(echo ${result} | cut -d',' -f $n)
-            if [[ -z ${other_half} ]]; then
+            whole_key=$(echo ${result} | cut -d',' -f $n)
+            if [[ -z ${whole_key} ]]; then
                 break
             fi
-            name=$(echo ${other_half} | cut -d'"' -f 1)
-            echo ${name}
+            key=$(echo ${whole_key} | cut -d'"' -f 1)
+            echo ${key}
         done
 
     fi
