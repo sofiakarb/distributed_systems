@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
 
 backup () {
-    #This takes the 2 values of workers
-
+    #Below we take all the keys-values from Consul and place them in a backup file
 
     result="[\"datasets/myMaster\"]"    #curl -s http://192.168.99.100:8500/v1/kv/?keys
 
     if [[ -z "${result}" ]]; then
-        echo "no keys? what is that even mean?"
+        if [[ -s backup.json ]]; then   #file not empty....
+            echo "maybe Consul restarted... place your backup in Consul"
+        else
+            echo "nothing yet..maybe too soon"
+            sleep 1
+            exit    #is that needed?
+        fi
     fi
 
     if [[ ${result} != *","* ]]; then
