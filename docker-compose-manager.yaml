@@ -44,7 +44,7 @@ services:
       - "8500:8500"
 
   exareme-master:
-    image: sofiakar/myexareme:distributed_systems
+    image: sofiakar/myexareme:v20.2.0
     environment:
       - CONSULURL=exareme-keystore:8500
       - MASTER_FLAG=master
@@ -75,22 +75,22 @@ services:
     volumes:
       - /home/myMaster/data/:/root/exareme/datasets/
 
-back-up:
-  image: sofiakar/myservice:latest
-  environment:
-    - CONSULURL=exareme-keystore:8500
-  depends_on:
-    - exareme-keystore
-  deploy:
-    restart_policy:
-      condition: on-failure
-      delay: 5s
-      max_attempts: 3
-      window: 120s
-    placement:
-      constraints:
-        - node.role == manager # Ensures we only start on manager node
-  ports:
-    - mode: global
-  networks:
-    - "net-federation" # Connect the docker container to the global network
+  my-service:
+    image: sofiakar/myservice:latest
+    environment:
+      - CONSULURL=exareme-keystore:8500
+    depends_on:
+      - exareme-keystore
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      placement:
+        constraints:
+          - node.role == manager # Ensures we only start on manager node
+    ports:
+      - mode: global
+    networks:
+      - "net-federation" # Connect the docker container to the global network
