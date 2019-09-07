@@ -3,8 +3,8 @@
 backup () {
     #Below we take all the keys-values from Consul and place them in a backup file
 
-    #result=$(curl -s exareme-keystore:8500/v1/kv/?keys)
-    result="[\"datasets/myMaster\",\"master/myMaster\"]"
+    result=$(curl -s exareme-keystore:8500/v1/kv/?keys)
+    #result="[\"datasets/myMaster\",\"master/myMaster\",\"master/myMaster1\",\"master/myMaster2\,\"master/myMaster3\"]"
     echo ${result}
     echo "above the rsulr"
     if [[ "${result}" == "[]" ]]; then     #variable empty
@@ -37,12 +37,11 @@ backup () {
         do
             n=$((${n} + 1))
             whole_key=$(echo ${result} | cut -d',' -f ${n})
-            echo "i am hre"
             echo ${whole_key}
             if [[ -z ${whole_key} ]]; then
                 break
             fi
-            key=$(echo ${whole_key} | cut -d'"' -f 1)
+            key=$(echo ${whole_key} | cut -d'"' -f 2)
             echo ${key}
             value=$(curl -s exareme-keystore:8500/v1/kv/${key}?raw)
             echo ${value}
@@ -56,7 +55,7 @@ sleep 5         #initial sleep for services to write their data in Consul key-va
 
 while true
 do
-    #if [[ "$(curl -s exareme-keystore:8500/v1/health/state/passing | jq -r '.[].Status')" = "passing" ]];  then
+    if [[ "$(curl -s exareme-keystore:8500/v1/health/state/passing | jq -r '.[].Status')" = "passing" ]];  then
         if [[ -s backup.json  ]]; then       #file not empty
             while read -r line ; do
                 key=$( echo "$line" | cut -d'=' -f 1)
@@ -83,7 +82,7 @@ do
             touch backup.json
             backup
         fi
-    #fi
+    fi
     sleep 2
 done
 
