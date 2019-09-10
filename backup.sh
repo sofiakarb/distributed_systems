@@ -26,7 +26,7 @@ backup () {
 
     result=$(curl -s exareme-keystore:8500/v1/kv/?keys)
     echo ${result}
-    if [[ "${result}" == "[]" ]]; then      #variable empty
+    if [[ "${result}" == "[]" ]] || [[ "${result}" == "" ]]; then      #variable empty
         echo "Result=" ${result}" is empty"
         if [[ -s backup.json ]]; then       #file not empty....
             echo "Consul service restarted. Sync Consul key-value store with Backup file..(within backup function)"
