@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 check () {
-    echo "Going to check.."
+    echo "Going to check.."${1}" "${2}
     while read -r line ; do
         key=$( echo "$line" | cut -d'=' -f 1)
         if [[ "${key}" == "${1}" ]]; then
@@ -9,11 +9,11 @@ check () {
             file_value=$( echo "$line" | cut -d'=' -f 2)
             if [[ "${file_value}" == "${2}" ]]; then
                 echo "Same value.nothing to be done.."
-                exit 1
+                return 1
             else
                 echo "Different value.changing value in backup file.."
                 sed -i -r '/'[\${key}]'/ s/'${file_value}'/'${2}'/' backup.json
-                exit 1
+                return 1
             fi
         fi
     done < backup.json
@@ -32,47 +32,43 @@ backup () {
             echo "Consul service restarted. Sync Consul key-value store with Backup file..(within backup function)"
             while read r line ; do
                 key=$( echo "$line" | cut -d'=' -f 1)
-                echo ${key}
                 file_value=$( echo "$line" | cut -d'=' -f 2)
-                echo ${file_value}
                 curl -s -X PUT -d @- exareme-keystore:8500/v1/kv/${key} <<< ${file_value}
             done
             echo "Consul key-value store synced..(within backup function)"
+            return 1
         else
             "Too soon maybe? sleep.."
             sleep 5
-            exit 1
+            return 1
         fi
-    fi
-    #consider if it is ok to delete backup.json and re-create it every time..
-    if [[ ${result} != *","* ]]; then       # you need to check each time before you add the key value to back up
-        key=$(echo ${result} | cut -d'"' -f 2)
-        value=$(curl -s exareme-keystore:8500/v1/kv/${key}?raw)
-        check "${key}" "${value}"
     else
-        whole_key=$(echo ${result} | cut -d',' -f 1)
-        key=$(echo ${whole_key} | cut -d '"' -f 2)
-        echo ${key}
-        value=$(curl -s exareme-keystore:8500/v1/kv/${key}?raw)
-        echo ${value}
-        check "${key}" "${value}"
-
-        n=1
-        while true
-        do
-            n=$((${n} + 1))
-            whole_key=$(echo ${result} | cut -d',' -f ${n})
-            echo ${whole_key}
-            if [[ -z ${whole_key} ]]; then
-                break
-            fi
-            key=$(echo ${whole_key} | cut -d'"' -f 2)
-            echo ${key}
+        echo "Result=" ${result}
+        #consider if it is ok to delete backup.json and re-create it every time..
+        if [[ ${result} != *","* ]]; then       # you need to check each time before you add the key value to back up
+            key=$(echo ${result} | cut -d'"' -f 2)
             value=$(curl -s exareme-keystore:8500/v1/kv/${key}?raw)
-            echo ${value}
             check "${key}" "${value}"
-        done
+        else
+            whole_key=$(echo ${result} | cut -d',' -f 1)
+            key=$(echo ${whole_key} | cut -d '"' -f 2)
+            value=$(curl -s exareme-keystore:8500/v1/kv/${key}?raw)
+            check "${key}" "${value}"
 
+            n=1
+            while true
+            do
+                n=$((${n} + 1))
+                whole_key=$(echo ${result} | cut -d',' -f ${n})
+                if [[ -z ${whole_key} ]]; then
+                    break
+                fi
+                key=$(echo ${whole_key} | cut -d'"' -f 2)
+                value=$(curl -s exareme-keystore:8500/v1/kv/${key}?raw)
+                check "${key}" "${value}"
+            done
+
+        fi
     fi
 }
 
