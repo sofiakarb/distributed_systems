@@ -1,36 +1,61 @@
 #!/usr/bin/env bash
 
+check () {
+    echo "Going to check.."
+    while read -r line ; do
+        key=$( echo "$line" | cut -d'=' -f 1)
+        if [[ "${key}" == "${1}" ]]; then
+            echo "Same key."
+            file_value=$( echo "$line" | cut -d'=' -f 2)
+            if [[ "${file_value}" == "${2}" ]]; then
+                echo "Same value.nothing to be done.."
+                exit 1
+            else
+                echo "Different value.changing value in backup file.."
+                sed -i -r '/'[\${key}]'/ s/'${file_value}'/'${2}'/' backup.json
+                exit 1
+            fi
+        fi
+    done < backup.json
+    echo "Adding a new pair of key-value in backup file"
+    echo ${1}"="${2} >> backup.json
+}
+
 backup () {
     #Below we take all the keys-values from Consul and place them in a backup file
 
     result=$(curl -s exareme-keystore:8500/v1/kv/?keys)
-    #result="[\"datasets/myMaster\",\"master/myMaster\",\"master/myMaster1\",\"master/myMaster2\,\"master/myMaster3\"]"
     echo ${result}
-    echo "above the rsulr"
-    if [[ "${result}" == "[]" ]]; then     #variable empty
-        echo "result is empty"
-        if [[ -s backup.json ]]; then   #file not empty....
-            echo "maybe Consul restarted... place your backup in Consul"
+    if [[ "${result}" == "[]" ]]; then      #variable empty
+        echo "Result=" ${result}" is empty"
+        if [[ -s backup.json ]]; then       #file not empty....
+            echo "Consul service restarted. Sync Consul key-value store with Backup file..(within backup function)"
+            while read r line ; do
+                key=$( echo "$line" | cut -d'=' -f 1)
+                echo ${key}
+                file_value=$( echo "$line" | cut -d'=' -f 2)
+                echo ${file_value}
+                curl -s -X PUT -d @- exareme-keystore:8500/v1/kv/${key} <<< ${file_value}
+            done
+            echo "Consul key-value store synced..(within backup function)"
         else
-            echo "nothing yet..maybe too soon"
-            sleep 1
-            result=$(curl -s exareme-keystore:8500/v1/kv/?keys)   #"[\"master/myMaster\"]"
-            echo ${result}
-            echo "above the rsulr"
+            "Too soon maybe? sleep.."
+            sleep 5
+            exit 1
         fi
     fi
-
-    if [[ ${result} != *","* ]]; then
+    #consider if it is ok to delete backup.json and re-create it every time..
+    if [[ ${result} != *","* ]]; then       # you need to check each time before you add the key value to back up
         key=$(echo ${result} | cut -d'"' -f 2)
         value=$(curl -s exareme-keystore:8500/v1/kv/${key}?raw)
-        echo ${key}"="${value} >> backup.json
+        check "${key}" "${value}"
     else
         whole_key=$(echo ${result} | cut -d',' -f 1)
         key=$(echo ${whole_key} | cut -d '"' -f 2)
         echo ${key}
         value=$(curl -s exareme-keystore:8500/v1/kv/${key}?raw)
         echo ${value}
-        echo ${key}"="${value} >> backup.json
+        check "${key}" "${value}"
 
         n=1
         while true
@@ -45,13 +70,13 @@ backup () {
             echo ${key}
             value=$(curl -s exareme-keystore:8500/v1/kv/${key}?raw)
             echo ${value}
-            echo ${key}"="${value} >> backup.json
+            check "${key}" "${value}"
         done
 
     fi
 }
 
-sleep 5         #initial sleep for services to write their data in Consul key-value store
+sleep 20         #initial sleep for services to write their data in Consul key-value store
 
 while true
 do
@@ -77,13 +102,14 @@ do
                     echo "Backup file synced..... "
 
                 fi
-            done < backup.json      #ana takta xronika diastimata ksana backup. alla pote to backup thelei prosoxi min ginei backup kai to consul exei molis kanei restart
+            done < backup.json
         else
             touch backup.json
             backup
         fi
     fi
-    sleep 2
+    sleep 5
+    backup
 done
 
 
