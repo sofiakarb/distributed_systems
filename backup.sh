@@ -100,7 +100,6 @@ do
                 fi
             done < backup.json
         else
-            touch backup.json
             backup
         fi
     fi
