@@ -27,7 +27,7 @@ check () {
 backup () {
 
     #Here we take all the keys-values from Consul and place them in a backup file
-    while [[ "$(curl -s exareme-keystore/v1/health/state/passing | jq -r '.[].Status')" != "passing" ]]; do
+    while [[ "$(curl -s exareme-keystore:8500/v1/health/state/passing | jq -r '.[].Status')" != "passing" ]]; do
         result=$(curl -s exareme-keystore:8500/v1/kv/?keys)
     done
     if [[ "${result}" == "[]" ]] || [[ "${result}" == "" ]]; then      #variable empty
@@ -87,7 +87,7 @@ do
 
                 if [[ -z ${kv_value} ]]; then      #Since backup.json file has key-value, but Consul key-value store seams to be empty, the service restarted..
                     echo "Consul service restarted. Sync Consul key-value store with Backup file.."
-                    while [[ "$(curl -s ${CONSULURL}/v1/health/state/passing | jq -r '.[].Status')" != "passing" ]]; do
+                    while [[ "$(curl -s exareme-keystore:8500/v1/health/state/passing | jq -r '.[].Status')" != "passing" ]]; do
                         curl -s -X PUT -d @- exareme-keystore:8500/v1/kv/${key} <<< ${file_value}
                     done
                     echo "Consul key-value store synced!!"
