@@ -14,7 +14,7 @@ check () {
                 echo "Same value. Nothing to be done!!"
                 return 1
             else
-                echo "Different value. Changing value in backup file!!"
+                echo "Different value ["${file_value}"]. Changing value in backup file!!"
                 sed -i -r '/'[\${key}]'/ s/'${file_value}'/'${2}'/' /home/backup/backup.json
                 return 1
             fi
@@ -42,7 +42,7 @@ backup () {
             return 1
         else
             echo "Too soon maybe? sleep.."
-            sleep 5
+            sleep 2
             return 1
         fi
     else
@@ -75,7 +75,7 @@ backup () {
     fi
 }
 
-sleep 10         #initial sleep for services to write their data in Consul key-value store
+#sleep 10         #initial sleep for services to write their data in Consul key-value store
 
 while true
 do
@@ -103,7 +103,7 @@ do
             backup
         fi
     fi
-    sleep 5
+    #sleep 5
     backup
 done
 
