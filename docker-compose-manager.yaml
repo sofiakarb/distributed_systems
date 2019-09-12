@@ -94,5 +94,5 @@ services:
       - mode: global
     networks:
       - "net-federation"
-  volumes:
-    - /home/myMaster/backup/:/home/backup/
+    volumes:
+      - /home/myMaster/backup/:/home/backup/
