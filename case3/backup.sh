@@ -41,7 +41,7 @@ backup () {
             echo "Consul key-value store synced!!(within backup function)"
             return 1
         else
-            "Too soon maybe? sleep.."
+            echo "Too soon maybe? sleep.."
             sleep 5
             return 1
         fi
