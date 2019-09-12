@@ -15,13 +15,13 @@ check () {
                 return 1
             else
                 echo "Different value. Changing value in backup file!!"
-                sed -i -r '/'[\${key}]'/ s/'${file_value}'/'${2}'/' backup.json
+                sed -i -r '/'[\${key}]'/ s/'${file_value}'/'${2}'/' /home/backup/backup.json
                 return 1
             fi
         fi
-    done < backup.json
+    done < /home/backup/backup.json
     echo "Adding a new pair of key-value in backup file."
-    echo ${1}"="${2} >> backup.json
+    echo ${1}"="${2} >> /home/backup/backup.json
 }
 
 backup () {
@@ -46,7 +46,7 @@ backup () {
             return 1
         fi
     else
-        echo "Result=" ${result}
+        echo -e "\nResult=" ${result}
 
         if [[ ${result} != *","* ]]; then       # you need to check each time before you add the key value to back up
             key=$(echo ${result} | cut -d'"' -f 2)
@@ -94,11 +94,11 @@ do
                     echo "Backup file is already synced with Consul key-value store..Nothing to be synced!!"
                 else
                     echo "Backup file not synced with Consul..Change backup file!!"
-                    sed -i '' '/'[\${key}]'/ s/'${file_value}'/'${kv_value}'/' backup.json
+                    sed -i .bak '/'[\${key}]'/ s/'${file_value}'/'${kv_value}'/' /home/backup/backup.json
                     echo "Backup file synced!!"
 
                 fi
-            done < backup.json
+            done < /home/backup/backup.json
         else
             backup
         fi

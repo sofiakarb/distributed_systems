@@ -95,4 +95,4 @@ services:
     networks:
       - "net-federation"
     volumes:
-      - /home/myMaster/backup.json:/home/backup.json
+      - /home/myMaster/backup/:/home/backup/
