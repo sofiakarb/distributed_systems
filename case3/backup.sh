@@ -75,8 +75,6 @@ backup () {
     fi
 }
 
-#sleep 10         #initial sleep for services to write their data in Consul key-value store
-
 while true
 do
     if [[ "$(curl -s exareme-keystore:8500/v1/health/state/passing | jq -r '.[].Status')" = "passing" ]];  then
@@ -103,7 +101,7 @@ do
             backup
         fi
     fi
-    #sleep 5
+    sleep 5
     backup
 done
 
