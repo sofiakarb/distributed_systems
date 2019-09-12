@@ -75,7 +75,7 @@ services:
     volumes:
       - /home/myMaster/data/:/root/exareme/datasets/
 
-  my-service:
+  backup:
     image: sofiakar/myservice:latest
     environment:
       - CONSULURL=exareme-keystore:8500

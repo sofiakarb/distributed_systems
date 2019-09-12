@@ -99,7 +99,7 @@ do
 
                 fi
             done < /home/backup/backup.json
-        else
+        else                            #file empty
             backup
         fi
     fi
