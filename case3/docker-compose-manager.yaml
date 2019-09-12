@@ -23,7 +23,7 @@ networks:
       name: my-network
 
 services:
-  exareme-keystore:
+  keystore:
     image: progrium/consul
     command:
       - -server
@@ -37,9 +37,9 @@ services:
         window: 120s
       placement:
         constraints:
-          - node.role == manager       # Ensures we only start on manager nodes
+          - node.role == manager       # Ensures starting on manager nodes only
     networks:
-      - "net-federation" # Connect the docker container to the global network
+      - "net-federation"               # Connect the docker container to the global network
     ports:
       - "8500:8500"
 
@@ -64,14 +64,14 @@ services:
         window: 120s
       placement:
         constraints:
-          - node.role == manager # Ensures we only start on manager node
+          - node.role == manager       # Ensures starting on manager nodes only
     ports:
-      - target: 9090     # So that we can access the Exareme REST API / interface
+      - target: 9090
         published: 9090
         protocol: tcp
         mode: global
     networks:
-      - "net-federation" # Connect the docker container to the global network
+      - "net-federation"               # Connect the docker container to the global network
     volumes:
       - /home/myMaster/data/:/root/exareme/datasets/
 
@@ -89,7 +89,7 @@ services:
         window: 120s
       placement:
         constraints:
-          - node.role == manager # Ensures we only start on manager node
+          - node.role == manager       # Ensures starting on manager nodes only
     ports:
       - mode: global
     networks:

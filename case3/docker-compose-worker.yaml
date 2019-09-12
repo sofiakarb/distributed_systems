@@ -23,7 +23,7 @@ networks:
       name: my-network
 
 services:
-  exareme:
+  exareme-worker:
     image: sofiakar/myexareme:v20.2.0
     environment:
       - CONSULURL=exareme-keystore:8500
@@ -41,8 +41,8 @@ services:
         window: 120s
       placement:
         constraints:
-          - node.role == worker # Ensures we only start on worker nodes
+          - node.role == worker       # Ensures starting on worker nodes only
     networks:
-      - "net-federation" # Connect the docker container to the global network
+      - "net-federation"              # Connect the docker container to the global network
     volumes:
       - /home/myWorker/data/:/root/exareme/datasets/
