@@ -27,17 +27,18 @@ check () {
 backup () {
 
     #Here we take all the keys-values from Consul and place them in a backup file
-
-    result=$(curl -s exareme-keystore:8500/v1/kv/?keys)
+    while [[ "$(curl -s exareme-keystore/v1/health/state/passing | jq -r '.[].Status')" != "passing" ]]; do
+        result=$(curl -s exareme-keystore:8500/v1/kv/?keys)
+    done
     if [[ "${result}" == "[]" ]] || [[ "${result}" == "" ]]; then      #variable empty
         echo -e "\nResult=" ${result}" is empty"
         if [[ -s backup.json ]]; then       #file not empty....
             echo "Consul service restarted. Sync Consul key-value store with Backup file!!(within backup function)"
-            while read r line ; do
+            while read -r line ; do
                 key=$( echo "$line" | cut -d'=' -f 1)
                 file_value=$( echo "$line" | cut -d'=' -f 2)
                 curl -s -X PUT -d @- exareme-keystore:8500/v1/kv/${key} <<< ${file_value}
-            done
+            done < backup.json
             echo "Consul key-value store synced!!(within backup function)"
             return 1
         else
@@ -78,7 +79,7 @@ backup () {
 while true
 do
     if [[ "$(curl -s exareme-keystore:8500/v1/health/state/passing | jq -r '.[].Status')" = "passing" ]];  then
-        if [[ -z backup.json  ]]; then       #file not empty
+        if [[ -f backup.json  ]]; then       #file not empty
             while read -r line ; do
                 key=$( echo "$line" | cut -d'=' -f 1)
                 file_value=$( echo "$line" | cut -d'=' -f 2)
@@ -86,7 +87,9 @@ do
 
                 if [[ -z ${kv_value} ]]; then      #Since backup.json file has key-value, but Consul key-value store seams to be empty, the service restarted..
                     echo "Consul service restarted. Sync Consul key-value store with Backup file.."
-                    curl -s -X PUT -d @- exareme-keystore:8500/v1/kv/${key} <<< ${file_value}
+                    while [[ "$(curl -s ${CONSULURL}/v1/health/state/passing | jq -r '.[].Status')" != "passing" ]]; do
+                        curl -s -X PUT -d @- exareme-keystore:8500/v1/kv/${key} <<< ${file_value}
+                    done
                     echo "Consul key-value store synced!!"
                 elif [[ "$kv_value" == "$file_value" ]]; then
                     echo "Backup file is already synced with Consul key-value store..Nothing to be synced!!"
