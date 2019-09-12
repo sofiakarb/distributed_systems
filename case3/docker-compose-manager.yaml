@@ -23,7 +23,7 @@ networks:
       name: my-network
 
 services:
-  keystore:
+  exareme-keystore:
     image: progrium/consul
     command:
       - -server
