@@ -15,13 +15,13 @@ check () {
                 return 1
             else
                 echo "Different value ["${file_value}"]. Changing value in backup file!!"
-                sed -i -r '/'[\${key}]'/ s/'${file_value}'/'${2}'/' /home/backup/backup.json
+                sed -i -r '/'[\${key}]'/ s/'${file_value}'/'${2}'/' backup.json
                 return 1
             fi
         fi
-    done < /home/backup/backup.json
+    done < backup.json
     echo "Adding a new pair of key-value in backup file."
-    echo ${1}"="${2} >> /home/backup/backup.json
+    echo ${1}"="${2} >> backup.json
 }
 
 backup () {
@@ -31,7 +31,7 @@ backup () {
     result=$(curl -s exareme-keystore:8500/v1/kv/?keys)
     if [[ "${result}" == "[]" ]] || [[ "${result}" == "" ]]; then      #variable empty
         echo -e "\nResult=" ${result}" is empty"
-        if [[ -s /home/backup/backup.json ]]; then       #file not empty....
+        if [[ -s backup.json ]]; then       #file not empty....
             echo "Consul service restarted. Sync Consul key-value store with Backup file!!(within backup function)"
             while read r line ; do
                 key=$( echo "$line" | cut -d'=' -f 1)
@@ -78,7 +78,7 @@ backup () {
 while true
 do
     if [[ "$(curl -s exareme-keystore:8500/v1/health/state/passing | jq -r '.[].Status')" = "passing" ]];  then
-        if [[ -s /home/backup/backup.json  ]]; then       #file not empty
+        if [[ -s backup.json  ]]; then       #file not empty
             while read -r line ; do
                 key=$( echo "$line" | cut -d'=' -f 1)
                 file_value=$( echo "$line" | cut -d'=' -f 2)
@@ -92,11 +92,11 @@ do
                     echo "Backup file is already synced with Consul key-value store..Nothing to be synced!!"
                 else
                     echo "Backup file not synced with Consul..Change backup file!!"
-                    sed -i .bak '/'[\${key}]'/ s/'${file_value}'/'${kv_value}'/' /home/backup/backup.json
+                    sed -i .bak '/'[\${key}]'/ s/'${file_value}'/'${kv_value}'/' backup.json
                     echo "Backup file synced!!"
 
                 fi
-            done < /home/backup/backup.json
+            done < backup.json
         else                            #file empty
             backup
         fi
