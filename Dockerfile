@@ -37,6 +37,4 @@ RUN chmod 755 /home/backup.sh
 ENV USER=root
 WORKDIR /home
 
-COPY backup.json /home/
-
 CMD ["/bin/bash","backup.sh"]

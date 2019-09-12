@@ -93,4 +93,6 @@ services:
     ports:
       - mode: global
     networks:
-      - "net-federation" # Connect the docker container to the global network
+      - "net-federation"
+  volumes:
+    - /home/myMaster/backup/:/home/backup/
