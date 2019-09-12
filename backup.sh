@@ -29,9 +29,8 @@ backup () {
     #Here we take all the keys-values from Consul and place them in a backup file
 
     result=$(curl -s exareme-keystore:8500/v1/kv/?keys)
-    echo ${result}
     if [[ "${result}" == "[]" ]] || [[ "${result}" == "" ]]; then      #variable empty
-        echo "Result=" ${result}" is empty"
+        echo -e "\nResult=" ${result}" is empty"
         if [[ -s backup.json ]]; then       #file not empty....
             echo "Consul service restarted. Sync Consul key-value store with Backup file!!(within backup function)"
             while read r line ; do
@@ -84,11 +83,8 @@ do
         if [[ -s backup.json  ]]; then       #file not empty
             while read -r line ; do
                 key=$( echo "$line" | cut -d'=' -f 1)
-                echo ${key}
                 file_value=$( echo "$line" | cut -d'=' -f 2)
-                echo ${file_value}
                 kv_value=$(curl -s exareme-keystore:8500/v1/kv/${key}?raw)
-                echo ${kv_value}
 
                 if [[ -z ${kv_value} ]]; then      #Since backup.json file has key-value, but Consul key-value store seams to be empty, the service restarted..
                     echo "Consul service restarted. Sync Consul key-value store with Backup file.."
@@ -98,7 +94,7 @@ do
                     echo "Backup file is already synced with Consul key-value store..Nothing to be synced!!"
                 else
                     echo "Backup file not synced with Consul..Change backup file!!"
-                    sed -i'' -r '/'[\${key}]'/ s/'${file_value}'/'${kv_value}'/' backup.json
+                    sed -i '' '/'[\${key}]'/ s/'${file_value}'/'${kv_value}'/' backup.json
                     echo "Backup file synced!!"
 
                 fi
