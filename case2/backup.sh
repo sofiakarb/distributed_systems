@@ -78,7 +78,7 @@ backup () {
 while true
 do
     if [[ "$(curl -s exareme-keystore:8500/v1/health/state/passing | jq -r '.[].Status')" = "passing" ]];  then
-        if [[ -s backup.json  ]]; then       #file not empty
+        if [[ -z backup.json  ]]; then       #file not empty
             while read -r line ; do
                 key=$( echo "$line" | cut -d'=' -f 1)
                 file_value=$( echo "$line" | cut -d'=' -f 2)
@@ -98,6 +98,7 @@ do
                 fi
             done < backup.json
         else                            #file empty
+            touch backup.json
             backup
         fi
     fi
