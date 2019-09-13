@@ -43,13 +43,13 @@ services:
       - "8500:8500"
 
   exareme-master:
-    image: sofiakar/myexareme:v20.2.0
+    image: sofiakar/myexareme:dist
     environment:
       - CONSULURL=exareme-keystore:8500
       - MASTER_FLAG=master
       - NODE_NAME=myMaster
-      - DOCKER_DATASETS_FOLDER=/root/exareme/datasets/
-      - DOCKER_METADATA_FOLDER=/root/exareme/datasets/
+      - DOCKER_DATA_FOLDER=/root/exareme/data/
+      - DOCKER_METADATA_FOLDER=/root/exareme/data/
       - EXAREME_ACTIVE_WORKERS_PATH=active_workers
       - EXAREME_MASTER_PATH=master
       - DATASETS=datasets
@@ -72,4 +72,4 @@ services:
     networks:
       - "net-federation"               # Connect the docker container to the global network
     volumes:
-      - /home/myMaster/data/:/root/exareme/datasets/
+      - /home/myMaster/data/:/root/exareme/data/
