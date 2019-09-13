@@ -27,13 +27,14 @@ services:
     image: sofiakar/myexareme:v20.2.0
     environment:
       - CONSULURL=exareme-keystore:8500
-      - NODE_NAME=${name}
+      - NODE_NAME=${node}
       - DOCKER_DATASETS_FOLDER=/root/exareme/datasets/
       - DOCKER_METADATA_FOLDER=/root/exareme/datasets/
       - EXAREME_ACTIVE_WORKERS_PATH=active_workers
       - EXAREME_MASTER_PATH=master
       - DATASETS=datasets
     deploy:
+      replicas: 1
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -42,7 +43,7 @@ services:
       placement:
         constraints:
           - node.role == worker       # Ensures starting on worker nodes only
-          - node.labels.name == ${name}
+          - node.labels.name == ${node}
     networks:
       - "net-federation"              # Connect the docker container to the global network
     volumes:
