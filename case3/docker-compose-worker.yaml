@@ -24,7 +24,7 @@ networks:
 
 services:
   exareme-worker:
-    image: sofiakar/myexareme:master_reboot
+    image: sofiakar/myexareme:distributed
     environment:
       - CONSULURL=exareme-keystore:8500
       - NODE_NAME=${node}
