@@ -43,7 +43,7 @@ services:
       placement:
         constraints:
           - node.role == worker       # Ensures starting on worker nodes only
-          g
+          - node.labels.name == ${node}
     networks:
       - "net-federation"              # Connect the docker container to the global network
     volumes:
