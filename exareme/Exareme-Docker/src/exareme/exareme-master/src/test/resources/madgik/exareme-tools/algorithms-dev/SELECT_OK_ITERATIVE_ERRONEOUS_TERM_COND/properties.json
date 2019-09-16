@@ -1,0 +1,16 @@
+{
+	"name": "SELECT_OK_ITERATIVE_ERRONEOUS_TERM_COND",
+	"desc": "",
+	"type": "iterative",
+	"status": "disabled",
+	"parameters": [{
+			"name": "iterations_max_number",
+			"desc": "Maximum number of iterations the algorithm will perform.",
+			"type": "other",
+			"value": "3",
+			"valueNotBlank": true,
+			"valueMultiple": false,
+			"valueType": "integer"
+		}
+	]
+}

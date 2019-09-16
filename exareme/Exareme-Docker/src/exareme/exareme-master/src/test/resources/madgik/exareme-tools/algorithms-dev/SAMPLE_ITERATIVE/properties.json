@@ -1,0 +1,16 @@
+{
+	"name": "SAMPLE_ITERATIVE",
+	"desc": "",
+	"type": "iterative",
+	"status": "disabled",
+	"parameters": [{
+			"name": "iterations_max_number",
+			"desc": "",
+			"type": "other",
+			"value": "6",
+			"valueNotBlank": true,
+			"valueMultiple": false,
+			"valueType": "integer"
+		}
+	]
+}
