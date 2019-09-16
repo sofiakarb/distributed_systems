@@ -27,7 +27,7 @@ services:
     image: sofiakar/myexareme:dist
     environment:
       - CONSULURL=exareme-keystore:8500
-      - NODE_NAME=myWorker1
+      - NODE_NAME={node}
       - DOCKER_DATA_FOLDER=/root/exareme/data/
       - DOCKER_METADATA_FOLDER=/root/exareme/data/
       - EXAREME_ACTIVE_WORKERS_PATH=active_workers
@@ -42,6 +42,7 @@ services:
       placement:
         constraints:
           - node.role == worker       # Ensures starting on worker nodes only
+          - node.labels.name == ${node}
     networks:
       - "net-federation"              # Connect the docker container to the global network
     volumes:
