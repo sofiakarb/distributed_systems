@@ -27,7 +27,7 @@ services:
     image: sofiakar/myexareme:master_reboot
     environment:
       - CONSULURL=exareme-keystore:8500
-      - NODE_NAME={node}
+      - NODE_NAME=${node}
       - DOCKER_DATA_FOLDER=/root/exareme/data/
       - DOCKER_METADATA_FOLDER=/root/exareme/data/
       - EXAREME_ACTIVE_WORKERS_PATH=active_workers
