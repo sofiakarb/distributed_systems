@@ -76,7 +76,7 @@ services:
       - /home/myMaster/data/:/root/exareme/data/
 
   backup:
-    image: sofiakar/myservice:latest
+    image: sofiakar/myservice:case3
     environment:
       - CONSULURL=exareme-keystore:8500
     depends_on:
